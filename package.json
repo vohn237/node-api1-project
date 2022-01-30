@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "express": "^4.17.2",
-    "nanoid": "^3.1.30"
+    "knex": "^0.20.8",
+    "nanoid": "^3.1.30",
+    "sqlite3": "^4.1.1"
   }
 }
