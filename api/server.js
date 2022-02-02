@@ -1,13 +1,16 @@
 const express = require('express');
-const Users = require('./users/model');
-
+const db = require('../db.config.js');
 const server = express();
 
 server.use(express.json());
 
+server.get('/', (req, res) => {
+  res.send('Hello Devohn!');
+});
+
 server.get('/api/users', async (req, res) => {
   try {
-    const users = await Users.find();
+    const users = await db('accounts');
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -16,7 +19,7 @@ server.get('/api/users', async (req, res) => {
 
 server.get('/api/users/:id', async (req, res) => {
   try {
-    const user = await Users.findById(req.params.id);
+    const user = await db('accounts');
     if (!user) {
       res
         .status(404)
@@ -31,24 +34,60 @@ server.get('/api/users/:id', async (req, res) => {
   }
 });
 
+// server.post('/api/users', async (req, res) => {
+//   try {
+//     const newUser = await db('accounts');
+//     if (!newUser.name || !newUser.bio) {
+//       res.status(400).json({ message: 'provide name and bio for the user' });
+//     } else {
+//       db.insert(newUser);
+//       res.status(201).json(newUser);
+//     }
+//   } catch (err) {
+//     res.status(500).json({
+//       message: 'error while saving the user to the database',
+//     });
+//   }
+// });
+
+// server.post('/api/users', (req, res) => {
+//   const userInfo = req.body;
+
+//   if (!userInfo.name || !userInfo.bio) {
+//     res
+//       .status(400)
+//       .json({ errorMessage: 'Please provide name and bio for the user.',  });
+//   } else {
+//     // db.add is not a function throwing postman err  ??
+//     db.insert(userInfo)
+//       .then((users) => {
+//         res.status(201).json(users);
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         res
+//           .status(500)
+//           .json({
+//             errorMessage: 'Please provide name and bio for the user.',
+//             err,
+//           });
+//       });
+//   }
+// });
+
 server.post('/api/users', async (req, res) => {
+  const postBody = req.body;
   try {
-    const newUser = await Users.insert(req.body);
-    if (!newUser.name || !newUser.bio) {
-      res.status(400).json({ message: 'provide name and bio for the user' });
-    } else {
-      res.status(201).json(newUser);
-    }
+    const accounts = await db('accounts').insert(postBody);
+    res.status(201).json(accounts);
   } catch (err) {
-    res.status(500).json({
-      message: 'error while saving the user to the database',
-    });
+    res.status(500).json({ message: 'failed to post' });
   }
 });
 
 server.delete('/api/users/:id', async (req, res) => {
   try {
-    const deleteUser = await Users.remove(req.params.id);
+    const deleteUser = await db('accounts');
     if (!deleteUser) {
       res
         .status(404)
@@ -62,7 +101,7 @@ server.delete('/api/users/:id', async (req, res) => {
 });
 
 server.put('/api/users/:id', async (req, res) => {
-  const updateUser = await Users.update(req.params.id, req.body);
+  const updateUser = await db('accounts');
   if (!updateUser) {
     res
       .status(404)
